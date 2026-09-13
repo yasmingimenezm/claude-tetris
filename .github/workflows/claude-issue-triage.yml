@@ -1,0 +1,115 @@
+name: Claude Issue Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+concurrency:
+  group: claude-triage-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  triage:
+    # Se salta si:
+    # - el evento lo generó un bot (evita bucles de realimentación)
+    # - el issue menciona a @claude (ya lo atiende claude.yml)
+    # - fue un "edited" que no tocó título ni cuerpo (p.ej. solo cambiaron labels/assignees,
+    #   lo cual también evita el bucle de que este propio job dispare "edited" al comentar)
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.event.issue.body, '@claude') &&
+      !contains(github.event.issue.title, '@claude') &&
+      (github.event.action != 'edited' || github.event.changes.body != null || github.event.changes.title != null)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Issue Triage
+        id: claude-triage
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowedTools "Read,Grep,Glob,Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh api:*),Bash(gh label list:*)"'
+          prompt: |
+            Analiza el issue #${{ github.event.issue.number }} del repositorio ${{ github.repository }}
+            (un juego de Tetris en JavaScript vanilla, ver CLAUDE.md para la arquitectura de game.js)
+            y produce un diagnóstico técnico real, en español.
+
+            ## Pasos
+
+            1. Lee el issue completo:
+               `gh issue view ${{ github.event.issue.number }} --json title,body,labels,comments`
+
+            2. Lee los labels disponibles del repo con `gh label list` y elige **solo entre los
+               existentes** (no crees labels nuevos). Guía de mapeo habitual en este repo:
+               `bug`, `enhancement`, `documentation`, `question`, `accessibility`, `duplicate`,
+               `invalid`, `help wanted`, `good first issue`. Aplica los que correspondan con:
+               `gh issue edit ${{ github.event.issue.number }} --add-label "a,b"`.
+               No quites labels que ya haya puesto una persona.
+
+            3. Investiga el código de verdad antes de escribir el diagnóstico. `game.js` es un
+               único archivo de scope global, sin clases. Usa Grep sobre los símbolos que
+               mencione o implique el issue (por ejemplo: `collide`, `tryRotate`, `rotateCW`,
+               `clearLines`, `ghostY`, `lockPiece`, `spawn`, `loop`, `merge`, `LINE_SCORES`,
+               `dropInterval`, `dropAccum`) y luego Read de esas zonas. El diagnóstico debe citar
+               ubicaciones concretas en formato `game.js:línea`. Si el issue es sobre estilos o
+               estructura, revisa también `style.css` e `index.html`.
+
+               Si el issue no da información suficiente para investigar (falta repro, contexto,
+               o es ambiguo), no inventes una causa raíz: dilo explícitamente, aplica el label
+               `question`, y enumera qué información falta.
+
+            4. Busca si ya existe un comentario de triaje previo de este mismo workflow:
+               `gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments --jq '.[] | select(.body | contains("<!-- claude-issue-triage -->")) | .id'`
+
+               - Si existe un id, actualiza ESE comentario (no crees uno nuevo) con:
+                 `gh api --method PATCH repos/${{ github.repository }}/issues/comments/<id> -f body=@archivo.md`
+               - Si no existe, créalo con:
+                 `gh issue comment ${{ github.event.issue.number }} --body-file archivo.md`
+
+               Esto evita duplicar comentarios cuando el issue se edita varias veces.
+
+            5. El comentario debe seguir exactamente esta plantilla (rellena cada sección,
+               no dejes placeholders sin completar):
+
+               ```
+               <!-- claude-issue-triage -->
+               ## 🔍 Diagnóstico automático
+
+               **Clasificación:** <bug | mejora | duda | documentación | inválido>
+               **Labels aplicados:** `x`, `y`
+
+               ### Resumen
+               ...
+
+               ### Reproducción / comportamiento esperado
+               ...
+
+               ### Causa raíz probable
+               ... (con referencias `game.js:línea`; si no se puede determinar, dilo y lista qué falta)
+
+               ### Archivos afectados
+               ...
+
+               ### Enfoque de solución propuesto
+               ...
+
+               ### Riesgos y efectos colaterales
+               ...
+
+               ### Criterios de aceptación
+               - [ ] ...
+
+               ---
+               *Análisis automático. Comenta `@claude` para implementar la solución.*
+               ```
+
+            Sé preciso y honesto: prioriza un diagnóstico correcto y verificable en el código
+            por encima de uno que suene completo pero especule sin base.
