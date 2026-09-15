@@ -373,3 +373,157 @@ kbd {
   font-family: inherit;
   cursor: pointer;
 }
+
+/* ---- Records ---- */
+#game-container.hidden {
+  display: none;
+}
+
+#start-screen {
+  position: relative;
+  inset: auto;
+  backdrop-filter: none;
+  background: transparent;
+  margin-bottom: 20px;
+}
+
+.start-box {
+  background: var(--color-board-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 24px 32px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  min-width: 260px;
+}
+
+#start-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--color-title);
+}
+
+.records {
+  width: 100%;
+}
+
+.records-empty {
+  font-size: 12px;
+  color: var(--color-label);
+  padding: 8px 0;
+}
+
+.records-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  min-width: 220px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.records-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--color-fg);
+}
+
+.records-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.records-score {
+  color: var(--color-value);
+  font-weight: 700;
+}
+
+.records-highlight {
+  background: var(--color-restart-bg);
+  color: var(--color-restart-text);
+}
+
+.records-highlight .records-score {
+  color: var(--color-restart-text);
+}
+
+.stats-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  font-size: 11px;
+  color: var(--color-label);
+}
+
+.stats-item strong {
+  display: block;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  color: var(--color-value);
+}
+
+.secondary-btn {
+  margin-top: 4px;
+  background: transparent;
+  color: var(--color-controls-text);
+  border: 1px solid var(--color-kbd-border);
+  border-radius: 6px;
+  padding: 6px 18px;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.secondary-btn:hover {
+  background: var(--color-kbd-bg);
+  color: var(--color-fg);
+}
+
+#overlay-combo {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  color: var(--color-label);
+}
+
+#name-entry {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#name-input {
+  background: var(--color-kbd-bg);
+  border: 1px solid var(--color-kbd-border);
+  border-radius: 4px;
+  color: var(--color-fg);
+  padding: 6px 10px;
+  font-size: 13px;
+  width: 130px;
+}
+
+#name-input:focus {
+  outline: 1px solid var(--color-value);
+}
+
+#save-name-btn {
+  background: var(--color-restart-bg);
+  color: var(--color-restart-text);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#save-name-btn:hover {
+  background: var(--color-restart-hover);
+}
