@@ -9,7 +9,21 @@
 <body>
   <div class="wrapper">
     <h1 class="game-title">TETRIS</h1>
-    <div class="game-container">
+
+    <div id="start-screen" class="overlay">
+      <div class="overlay-box start-box">
+        <p id="start-title">RÉCORDS</p>
+        <div id="start-records" class="records"></div>
+        <div class="stats-summary">
+          <span class="stats-item">Mejor combo <strong id="start-best-combo">0</strong></span>
+          <span class="stats-item">Máx. líneas <strong id="start-max-lines">0</strong></span>
+        </div>
+        <button id="start-btn">Jugar</button>
+        <button id="reset-records-btn" class="secondary-btn">Resetear récords</button>
+      </div>
+    </div>
+
+    <div id="game-container" class="game-container hidden">
       <canvas id="board" width="300" height="600"></canvas>
 
       <aside class="panel">
@@ -19,6 +33,16 @@
             <input type="checkbox" id="theme-toggle" aria-label="Cambiar entre modo oscuro y claro" />
             <span class="theme-switch-slider"></span>
           </label>
+        </div>
+
+        <div class="panel-section skin-section">
+          <span class="label">SKIN</span>
+          <select id="skin-select" aria-label="Elegir skin visual">
+            <option value="retro">Retro</option>
+            <option value="neon">Neon</option>
+            <option value="pastel">Pastel</option>
+            <option value="pixel">Pixel art</option>
+          </select>
         </div>
 
         <div class="panel-section">
@@ -46,7 +70,7 @@
             <li><kbd>↑</kbd> rotar</li>
             <li><kbd>↓</kbd> bajar</li>
             <li><kbd>Space</kbd> caída</li>
-            <li><kbd>P</kbd> pausa</li>
+            <li><kbd>P</kbd> / <kbd>Esc</kbd> pausa</li>
           </ul>
         </div>
       </aside>
@@ -56,7 +80,51 @@
       <div class="overlay-box">
         <p id="overlay-title">GAME OVER</p>
         <p id="overlay-score"></p>
+        <p id="overlay-combo"></p>
+        <div id="name-entry" class="hidden">
+          <input id="name-input" type="text" maxlength="12" placeholder="Tu nombre" autocomplete="off" />
+          <button id="save-name-btn">Guardar</button>
+        </div>
+        <div id="overlay-records" class="records"></div>
         <button id="restart-btn">Reiniciar</button>
+      </div>
+    </div>
+
+    <div id="pause-menu" class="pause-menu hidden" role="dialog" aria-modal="true" aria-labelledby="pause-menu-title" tabindex="-1">
+      <div class="pause-menu-box">
+        <p id="pause-menu-title">PAUSA</p>
+
+        <div id="pause-menu-main" class="pause-menu-view">
+          <button id="resume-btn" class="menu-btn" type="button">Reanudar</button>
+          <button id="pause-restart-btn" class="menu-btn" type="button">Reiniciar</button>
+          <button id="controls-btn" class="menu-btn" type="button">Ver controles</button>
+          <div class="level-select">
+            <label for="start-level">Nivel inicial</label>
+            <select id="start-level">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="pause-menu-controls" class="pause-menu-view hidden">
+          <ul>
+            <li><kbd>←</kbd><kbd>→</kbd> mover</li>
+            <li><kbd>↑</kbd> rotar</li>
+            <li><kbd>↓</kbd> bajar</li>
+            <li><kbd>Space</kbd> caída</li>
+            <li><kbd>P</kbd> / <kbd>Esc</kbd> pausa</li>
+          </ul>
+          <button id="back-btn" class="menu-btn" type="button">Volver</button>
+        </div>
       </div>
     </div>
   </div>
